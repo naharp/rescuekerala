@@ -232,11 +232,10 @@ def mapdata(request):
     if data:
         return JsonResponse(list(data) , safe=False)
     if district != "all":
-        data = Request.objects.exclude(latlng__exact="").filter(district=district)\
+        data = Request.objects.filter(district=district)\
                    .order_by('-id')[(page - 1) * 100: page * 100]
     else:
-        data = Request.objects.exclude(latlng__exact="").order_by('-id')\
-            [(page - 1) * 100: page * 100]
+        data = Request.objects.order_by('-id')[(page - 1) * 100: page * 100]
     cache.set(cachekey, data, settings.CACHE_TIMEOUT)
     return JsonResponse(list(data) , safe=False)
 
