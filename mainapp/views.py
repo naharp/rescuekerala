@@ -226,14 +226,17 @@ class Maintenance(TemplateView):
 
 def mapdata(request):
     district = request.GET.get("district", "all")
-    data = cache.get("mapdata:" + district)
+    page = int(request.GET.get("page", "1"))
+    data = cache.get("mapdata:" + district + str(page))
     if data:
         return JsonResponse(list(data) , safe=False)
     if district != "all":
-        data = Request.objects.exclude(latlng__exact="").filter(district=district).values()
+        data = Request.objects.exclude(latlng__exact="").filter(district=district)\
+                   .order_by('-id').values()[(page - 1) * 100: page * 100]
     else:
-        data = Request.objects.exclude(latlng__exact="").values()
-    cache.set("mapdata:" + district, data, settings.CACHE_TIMEOUT)
+        data = Request.objects.exclude(latlng__exact="").order_by('-id')\
+            .values()[(page - 1) * 100: page * 100]
+    cache.set("mapdata:" + district + str(page), data, settings.CACHE_TIMEOUT)
     return JsonResponse(list(data) , safe=False)
 
 def mapview(request):
