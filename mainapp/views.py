@@ -230,20 +230,27 @@ class Maintenance(TemplateView):
 def mapdata(request):
     district = request.GET.get("district", "all")
     page = max(int(request.GET.get("page", "1")), 1)
+    lastid = max(int(request.GET.get("lastid", "0")), 0)
 
-    cachekey = "mapdata:" + district + ',page:' + str(page)
+    cachekey = "mapdata:" + district + ',page:' + str(page)+ ',lastid:' + str(lastid)
     data = cache.get(cachekey)
     if not data:
         db = connection.cursor()
         where, args = '', []
 
         if district != "all":
-            where += 'where district = %s'
+            where += 'where district = %s '
             args.append(district)
 
-        args.extend([PER_PAGE, (page - 1) * PER_PAGE])
-        db.execute("SELECT * FROM mainapp_request {WHERE} ORDER BY id "
-                   "DESC LIMIT %s OFFSET %s;".format(WHERE=where), args)
+        if lastid:
+            where += 'where id > %s ' if where == '' else 'and id > %s'
+            args.append(lastid)
+            db.execute("SELECT * FROM mainapp_request " + where, args)
+        else:
+            args.extend([PER_PAGE, (page - 1) * PER_PAGE])
+            db.execute("SELECT * FROM mainapp_request {WHERE} ORDER BY id "
+                       "DESC LIMIT %s OFFSET %s;".format(WHERE=where), args)
+
         data = json.dumps(db.fetchall(), cls=DjangoJSONEncoder)
         cache.set(cachekey, data, settings.CACHE_TIMEOUT)
 
