@@ -226,6 +226,16 @@ def districtmanager_list(request):
 class Maintenance(TemplateView):
     template_name = "mainapp/maintenance.html"
 
+def data(request):
+    try:
+        offset = int(request.GET.get('offset'))
+    except:
+        offset = 0
+    last_record = Request.objects.latest('id')
+    request_data = (Request.objects.filter(id__gt=offset).order_by('id')[:300]).values()
+    description = 'select * from mainapp_requests where id > offset order by id limit 300'
+    response = {'data': list(request_data), 'meta': {'offset': offset, 'limit': 300, 'description': description,'last_record_id': last_record.id}}
+    return JsonResponse(response, safe=False)
 
 def mapdata(request):
     district = request.GET.get("district", "all")

@@ -1,3 +1,5 @@
+import os
+import uuid
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
@@ -347,6 +349,13 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+
+def upload_to(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    return os.path.join('media/', filename)
+
+
 class Announcements(models.Model):
     dateadded = models.DateTimeField(auto_now_add=True)
     priority = models.CharField(
@@ -356,8 +365,8 @@ class Announcements(models.Model):
         default='L')
 
     description = models.TextField(blank=True)
-    image = models.ImageField(blank=True, upload_to='media')
-    upload = models.FileField(blank=True, upload_to='media')
+    image = models.ImageField(blank=True, upload_to=upload_to)
+    upload = models.FileField(blank=True, upload_to=upload_to)
     is_pinned = models.BooleanField(default=False)
 
     class Meta:
