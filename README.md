@@ -1,10 +1,8 @@
 # keralarescue
 
-[![Build Status - Travis][0]][1]
+[![Build Status - Travis][0]][1] [![Open Source Helpers](https://www.codetriage.com/ieeekeralasection/rescuekerala/badges/users.svg)](https://www.codetriage.com/ieeekeralasection/rescuekerala)
 
 The Website for coordinating the rehabilitation of the people affected in the 2018 Kerala Floods.
-
-[![Join Kerala Rescue Slack channel](https://i.imgur.com/V7jxjak.png)](http://bit.ly/keralarescueslack)
 
 ## Getting Started
 

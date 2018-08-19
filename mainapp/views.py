@@ -1,3 +1,5 @@
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic.edit import CreateView, UpdateView
@@ -21,6 +23,7 @@ from django.urls import reverse
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404
 from mainapp.admin import create_csv_response
+from django.db import connection
 
 PER_PAGE = 100
 PAGE_LEFT = 5
@@ -185,7 +188,7 @@ class RequestFilter(django_filters.FilterSet):
 
 
 def request_list(request):
-    filter = RequestFilter(request.GET, queryset=Request.objects.all() )
+    filter = RequestFilter(request.GET, queryset=Request.objects.all())
     req_data = filter.qs.order_by('-id')
     paginator = Paginator(req_data, PER_PAGE)
     page = request.GET.get('page')
@@ -226,18 +229,26 @@ class Maintenance(TemplateView):
 
 def mapdata(request):
     district = request.GET.get("district", "all")
-    page = int(request.GET.get("page", "1"))
+    page = max(int(request.GET.get("page", "1")), 1)
+
     cachekey = "mapdata:" + district + ',page:' + str(page)
     data = cache.get(cachekey)
-    if data:
-        return JsonResponse(list(data) , safe=False)
-    if district != "all":
-        data = Request.objects.filter(district=district)\
-                   .order_by('-id')[(page - 1) * 100: page * 100]
-    else:
-        data = Request.objects.order_by('-id')[(page - 1) * 100: page * 100]
-    cache.set(cachekey, data, settings.CACHE_TIMEOUT)
-    return JsonResponse(list(data) , safe=False)
+    if not data:
+        db = connection.cursor()
+        where, args = '', []
+
+        if district != "all":
+            where += 'where district = %s'
+            args.append(district)
+
+        args.extend([PER_PAGE, (page - 1) * PER_PAGE])
+        db.execute("SELECT * FROM mainapp_request {WHERE} ORDER BY id "
+                   "DESC LIMIT %s OFFSET %s;".format(WHERE=where), args)
+        data = json.dumps(db.fetchall(), cls=DjangoJSONEncoder)
+        cache.set(cachekey, data, settings.CACHE_TIMEOUT)
+
+    return HttpResponse(data, content_type="application/json")
+
 
 def mapview(request):
     return render(request,"map.html")

@@ -126,8 +126,8 @@ class Request(models.Model):
         return out
 
     class Meta:
-        verbose_name = 'Relief: Supply Requiement'
-        verbose_name_plural = 'Relief: Supply Requirements'
+        verbose_name = 'Rescue: Request'
+        verbose_name_plural = 'Rescue:Requests'
 
     def __str__(self):
         return self.get_district_display() + ' ' + self.location
@@ -273,7 +273,7 @@ class RescueCamp(models.Model):
     data_entry_user = models.ForeignKey(User,models.SET_NULL,blank=True,null=True,help_text="This camp's coordinator page will be visible only to this user")
     map_link = models.CharField(max_length=250, verbose_name='Map link',blank=True,null=True,help_text="Copy and paste the full Google Maps link")
     latlng = models.CharField(max_length=100, verbose_name='GPS Coordinates', blank=True,help_text="Comma separated latlng field. Leave blank if you don't know it")
-        
+
     total_people = models.IntegerField(null=True,blank=True,verbose_name="Total Number of People")
     total_males = models.IntegerField(null=True,blank=True,verbose_name="Number of Males")
     total_females = models.IntegerField(null=True,blank=True,verbose_name="Number of Females")
