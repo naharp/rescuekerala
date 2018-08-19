@@ -243,13 +243,12 @@ def mapdata(request):
             args.append(district)
 
         if lastid:
-            where += 'where id > %s ' if where == '' else 'and id > %s'
+            where += 'where id > %s ' if where == '' else 'and id > %s '
             args.append(lastid)
-            db.execute("SELECT * FROM mainapp_request " + where, args)
-        else:
-            args.extend([PER_PAGE, (page - 1) * PER_PAGE])
-            db.execute("SELECT * FROM mainapp_request {WHERE} ORDER BY id "
-                       "DESC LIMIT %s OFFSET %s;".format(WHERE=where), args)
+
+        args.extend([PER_PAGE, (page - 1) * PER_PAGE])
+        db.execute("SELECT * FROM mainapp_request {WHERE} ORDER BY id "
+                   "DESC LIMIT %s OFFSET %s;".format(WHERE=where), args)
 
         data = json.dumps(db.fetchall(), cls=DjangoJSONEncoder)
         cache.set(cachekey, data, settings.CACHE_TIMEOUT)
