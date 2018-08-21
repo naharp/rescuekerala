@@ -114,17 +114,16 @@ WSGI_APPLICATION = 'floodrelief.wsgi.application'
 DATABASES = {}
 DATABASES['default'] = dj_database_url.parse(env('B_DATABASE_URL'), conn_max_age=600)
 
-CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
-# {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": env('REDIS_URL'),
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient"
-#         },
-#         "KEY_PREFIX": "keralarescue"
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "keralarescue"
+    }
+}
 CACHE_TIMEOUT = env('CACHE_TIMEOUT')
 
 # Password validation
